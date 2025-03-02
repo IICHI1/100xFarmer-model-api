@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crop Disease & Pest Detection</title>
+  </head>
+  <body>
+    <h1>Crop Disease & Pest Detection</h1>
+
+    <input type="file" id="fileInput" />
+    <button onclick="uploadImage()">Upload & Predict</button>
+
+    <div id="result" style="margin-top: 20px"></div>
+
+    <script>
+      function uploadImage() {
+        const fileInput = document.getElementById("fileInput");
+        const resultDiv = document.getElementById("result");
+
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert("Please select a file");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("model_name", "disease");
+
+        fetch("http://localhost:8000/predict/disease", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                "Failed to fetch prediction. Status: " + response.status
+              );
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.error) {
+              resultDiv.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+            } else {
+              resultDiv.innerHTML = `
+            <p><strong>Predicted Class:</strong> ${
+              data.predicted_class_name
+            }</p>
+            <p><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(
+              2
+            )}%</p>
+          `;
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            resultDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+          });
+      }
+    </script>
+  </body>
+</html>
