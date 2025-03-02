@@ -26,7 +26,7 @@ models = {
 }
 
 # Load categories (labels) from a pickle file
-with open("disease.pkl", "rb") as f:
+with open("models/disease.pkl", "rb") as f:
     categories = pickle.load(f)
 
 def preprocess_image(image):
@@ -35,6 +35,10 @@ def preprocess_image(image):
     image = np.array(image) / 255.0
     image = np.expand_dims(image, axis=0)
     return image
+
+@app.get("/")
+def home():
+    return {"message": "Welcome to 100xFarmer Model Backend!"}
 
 @app.post("/predict/disease")
 async def predict(model_name: str = Form(...), file: UploadFile = File(...)):
